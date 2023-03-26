@@ -30,33 +30,36 @@ public class ReservationServiceImpl implements ReservationService {
         try {
             user = userRepository3.findById(userId).get();
         } catch (Exception e) {
-            throw new Exception("User is not found");
+            throw new UserNotFound("User is not found");
         }
 
         ParkingLot parkingLot;
         try {
             parkingLot = parkingLotRepository3.findById(parkingLotId).get();
         } catch (Exception e) {
-            throw new Exception("ParkingLot is not found");
+            throw new ParkingLotUnavailable("ParkingLot is not found");
         }
 
         Spot spot = null;
         int minTime = Integer.MAX_VALUE;
         for (Spot spot1 : parkingLot.getSpotList()) {
-
-            if (numberOfWheels == 2 && (spot1.getPricePerHour() * timeInHours) < (minTime * timeInHours)) {
-                spot = spot1;
-                minTime = spot1.getPricePerHour();
-            } else if (numberOfWheels == 4 && (SpotType.FOUR_WHEELER == spot1.getSpotType() || SpotType.OTHERS == spot1.getSpotType() && (spot1.getPricePerHour() * timeInHours) < (minTime * timeInHours))) {
-                spot = spot1;
-                minTime = spot1.getPricePerHour();
-            } else if (numberOfWheels > 4 && SpotType.OTHERS == spot1.getSpotType() && (spot1.getPricePerHour() * timeInHours) < (minTime * timeInHours)) {
-                spot = spot1;
-                minTime = spot1.getPricePerHour();
+            if (spot1.getOccupied() == false) {
+                if (numberOfWheels == 2 && (spot1.getPricePerHour() * timeInHours) < (minTime * timeInHours)) {
+                    spot = spot1;
+                    minTime = spot1.getPricePerHour();
+                } else if (numberOfWheels == 4 && (SpotType.FOUR_WHEELER == spot1.getSpotType() || SpotType.OTHERS == spot1.getSpotType() && (spot1.getPricePerHour() * timeInHours) < (minTime * timeInHours))) {
+                    spot = spot1;
+                    minTime = spot1.getPricePerHour();
+                } else if (numberOfWheels > 4 && SpotType.OTHERS == spot1.getSpotType() && (spot1.getPricePerHour() * timeInHours) < (minTime * timeInHours)) {
+                    spot = spot1;
+                    minTime = spot1.getPricePerHour();
+                }
             }
         }
 
-        if (spot == null) throw new Exception("Spot is not available");
+        if (spot == null) throw new SpotUnavailable("Spot is not available");
+
+        spot.setOccupied(true);
 
         Reservation reservation = new Reservation();
         reservation.setSpot(spot);
@@ -67,7 +70,7 @@ public class ReservationServiceImpl implements ReservationService {
         user.getReservationList().add(reservation);
 
         spotRepository3.save(spot);
-        userRepository3.save(user);
+//        userRepository3.save(user);
         return reservation;
     }
 }

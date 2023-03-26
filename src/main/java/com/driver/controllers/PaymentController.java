@@ -22,6 +22,6 @@ public class PaymentController {
         Payment payment;
 
         payment = paymentService.pay(reservationId, amountSent, mode);
-        return null;
+        return payment;
     }
 }

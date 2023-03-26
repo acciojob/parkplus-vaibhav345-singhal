@@ -1,8 +1,6 @@
 package com.driver.services.impl;
 
-import com.driver.model.Payment;
-import com.driver.model.PaymentMode;
-import com.driver.model.Reservation;
+import com.driver.model.*;
 import com.driver.repository.PaymentRepository;
 import com.driver.repository.ReservationRepository;
 import com.driver.services.PaymentService;
@@ -21,29 +19,34 @@ public class PaymentServiceImpl implements PaymentService {
         Reservation reservation = reservationRepository2.findById(reservationId).get();
 
         int bill = reservation.getSpot().getPricePerHour() * reservation.getNumberOfHours();
+        Payment payment = new Payment();
 
         if (amountSent < bill) {
-            throw new Exception("Insufficient Amount");
+            payment.setPaymentCompleted(true);
+            paymentRepository2.save(payment);
+            throw new InsufficientException("Insufficient Amount");
         }
 
 
         mode = mode.toUpperCase();
         boolean isModePresent = false;
 
-        Payment payment = new Payment();
-
-        if (PaymentMode.CASH.equals(mode)) {
+        if (PaymentMode.CASH.toString().equals(mode)) {
             isModePresent = true;
             payment.setPaymentMode(PaymentMode.CASH);
-        } else if (PaymentMode.UPI.equals(mode)) {
+        } else if (PaymentMode.UPI.toString().equals(mode)) {
             isModePresent = true;
             payment.setPaymentMode(PaymentMode.UPI);
-        } else if (PaymentMode.CARD.equals(mode)) {
+        } else if (PaymentMode.CARD.toString().equals(mode)) {
             isModePresent = true;
             payment.setPaymentMode(PaymentMode.CARD);
         }
 
-        if (isModePresent == false) throw new Exception("Payment mode not detected");
+        if (isModePresent == false) {
+            payment.setPaymentCompleted(false);
+            paymentRepository2.save(payment);
+            throw new PaymentModeNotDetected("Payment mode not detected");
+        }
 
         payment.setReservation(reservation);
         payment.setPaymentCompleted(true);

@@ -1,6 +1,9 @@
 package com.driver.controllers;
 
+import com.driver.model.ParkingLotUnavailable;
 import com.driver.model.Reservation;
+import com.driver.model.SpotUnavailable;
+import com.driver.model.UserNotFound;
 import com.driver.services.impl.ReservationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,8 +26,12 @@ public class ReservationController {
         Reservation reservation;
         try {
             reservation = reservationService.reserveSpot(userId, parkingLotId, timeInHours, numberOfWheels);
-        } catch (Exception e) {
-            throw new Exception("Cannot make reservation");
+        } catch (UserNotFound e) {
+            throw new UserNotFound("User is not found");
+        } catch (ParkingLotUnavailable e) {
+            throw new ParkingLotUnavailable("ParkingLot is not found");
+        } catch (SpotUnavailable e) {
+            throw new SpotUnavailable("Spot is not available");
         }
 
         return reservation;
