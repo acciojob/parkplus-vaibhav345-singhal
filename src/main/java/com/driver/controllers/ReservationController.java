@@ -1,8 +1,8 @@
 package com.driver.controllers;
 
-import com.driver.model.ParkingLotUnavailable;
+import com.driver.model.ParkingLotNotFound;
 import com.driver.model.Reservation;
-import com.driver.model.SpotUnavailable;
+import com.driver.model.NoSpotFound;
 import com.driver.model.UserNotFound;
 import com.driver.services.impl.ReservationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ public class ReservationController {
     ReservationServiceImpl reservationService;
 
     @PostMapping("/reserveSpot")
-    public Reservation reserveSpot(@RequestParam Integer userId, @RequestParam Integer parkingLotId, @RequestParam Integer timeInHours, @RequestParam Integer numberOfWheels) throws Exception {
+    public Reservation reserveSpot(@RequestParam Integer userId, @RequestParam Integer parkingLotId, @RequestParam Integer timeInHours, @RequestParam Integer numberOfWheels) throws UserNotFound, ParkingLotNotFound, NoSpotFound {
         //Reserve a spot in the given parkingLot such that the total price is minimum. Note that the price per hour for each spot is different
         //Note that the vehicle can only be parked in a spot having a type equal to or larger than given vehicle
         //If parkingLot is not found, user is not found, or no spot is available, throw "Cannot make reservation" exception.
@@ -28,10 +28,10 @@ public class ReservationController {
             reservation = reservationService.reserveSpot(userId, parkingLotId, timeInHours, numberOfWheels);
         } catch (UserNotFound e) {
             throw new UserNotFound("User is not found");
-        } catch (ParkingLotUnavailable e) {
-            throw new ParkingLotUnavailable("ParkingLot is not found");
-        } catch (SpotUnavailable e) {
-            throw new SpotUnavailable("Spot is not available");
+        } catch (ParkingLotNotFound e) {
+            throw new ParkingLotNotFound("ParkingLot is not found");
+        } catch (NoSpotFound e) {
+            throw new NoSpotFound("Spot is not available");
         }
 
         return reservation;

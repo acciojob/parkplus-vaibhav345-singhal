@@ -9,8 +9,6 @@ import com.driver.services.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class ReservationServiceImpl implements ReservationService {
     @Autowired
@@ -23,7 +21,7 @@ public class ReservationServiceImpl implements ReservationService {
     ParkingLotRepository parkingLotRepository3;
 
     @Override
-    public Reservation reserveSpot(Integer userId, Integer parkingLotId, Integer timeInHours, Integer numberOfWheels) throws UserNotFound, ParkingLotUnavailable, SpotUnavailable {
+    public Reservation reserveSpot(Integer userId, Integer parkingLotId, Integer timeInHours, Integer numberOfWheels) throws UserNotFound, ParkingLotNotFound, NoSpotFound {
 
         User user;
 
@@ -37,7 +35,7 @@ public class ReservationServiceImpl implements ReservationService {
         try {
             parkingLot = parkingLotRepository3.findById(parkingLotId).get();
         } catch (Exception e) {
-            throw new ParkingLotUnavailable("ParkingLot is not found");
+            throw new ParkingLotNotFound("ParkingLot is not found");
         }
 
         Spot spot = null;
@@ -57,7 +55,7 @@ public class ReservationServiceImpl implements ReservationService {
             }
         }
 
-        if (spot == null) throw new SpotUnavailable("Spot is not available");
+        if (spot == null) throw new NoSpotFound("Spot is not available");
 
         spot.setOccupied(true);
 
