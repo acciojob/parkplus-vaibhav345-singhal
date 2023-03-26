@@ -15,7 +15,7 @@ public class PaymentServiceImpl implements PaymentService {
     PaymentRepository paymentRepository2;
 
     @Override
-    public Payment pay(Integer reservationId, int amountSent, String mode) throws Exception {
+    public Payment pay(Integer reservationId, int amountSent, String mode) throws InsufficientException, PaymentModeNotDetected {
         Reservation reservation = reservationRepository2.findById(reservationId).get();
 
         int bill = reservation.getSpot().getPricePerHour() * reservation.getNumberOfHours();

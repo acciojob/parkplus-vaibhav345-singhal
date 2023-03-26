@@ -1,6 +1,8 @@
 package com.driver.controllers;
 
+import com.driver.model.InsufficientException;
 import com.driver.model.Payment;
+import com.driver.model.PaymentModeNotDetected;
 import com.driver.services.impl.PaymentServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +23,13 @@ public class PaymentController {
         //Note that the reservationId always exists
         Payment payment;
 
-        payment = paymentService.pay(reservationId, amountSent, mode);
+        try {
+            payment = paymentService.pay(reservationId, amountSent, mode);
+        } catch (InsufficientException e) {
+            throw new InsufficientException("Insufficient Amount");
+        }catch (PaymentModeNotDetected e){
+            throw new PaymentModeNotDetected("Payment mode not detected");
+        }
         return payment;
     }
 }
