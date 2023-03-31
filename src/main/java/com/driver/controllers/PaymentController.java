@@ -25,10 +25,8 @@ public class PaymentController {
 
         try {
             payment = paymentService.pay(reservationId, amountSent, mode);
-        } catch (InsufficientException e) {
-            throw new InsufficientException("Insufficient Amount");
-        }catch (PaymentModeNotDetected e){
-            throw new PaymentModeNotDetected("Payment mode not detected");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         return payment;
     }
